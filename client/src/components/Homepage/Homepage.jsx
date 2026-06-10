@@ -3,125 +3,133 @@ import { useEffect, useState } from "react";
 import image from "../../assets/image.jpeg";
 import image1 from "../../assets/image1.jpg";
 import image2 from "../../assets/image2.jpg";
-import home from "../../assets/home.png";
+import homeHeroImage from "../../assets/home.png";
 import image4 from "../../assets/image4.jpg";
 import image5 from "../../assets/image5.jpg";
 import image6 from "../../assets/image6.jpg";
 
 import { MdKeyboardArrowRight } from "react-icons/md";
-import { BsFillArrowUpRightCircleFill } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
 
-const contentData = {
-  fashion: {
-    cards: [
-      { title: "Signature Leather Handbag", tag: "Featured", img: image },
-      {
-        title: "Refined Timepieces",
-        desc: "Minimal designs crafted for everyday elegance",
-        img: image1,
-      },
-      { title: "Style Details", img: image2 },
-    ],
+const featuredCards = [
+  {
+    title: "Signature Leather Handbag",
+    tag: "Featured",
+    image: image,
   },
-};
+  {
+    title: "Refined Timepieces",
+    description: "Minimal designs crafted for everyday elegance",
+    image: image1,
+  },
+  {
+    title: "Style Details",
+    image: image2,
+  },
+];
 
 const Homepage = () => {
-  const [products, setProducts] = useState([]);
-  const [brands, setBrands] = useState([]);
+  const [productList, setProductList] = useState([]);
+  const [brandList, setBrandList] = useState([]);
   const navigate = useNavigate();
 
-  const data = contentData.fashion;
-
-  const getProducts = async () => {
+  const fetchProducts = async () => {
     try {
       const response = await fetch("http://localhost:5000/products");
-      const data = await response.json();
-      setProducts(data);
+      const responseData = await response.json();
+      setProductList(responseData);
     } catch (error) {
       console.log(error);
-      setProducts([]);
+      setProductList([]);
     }
   };
 
-  const getBrands = async () => {
+  const fetchBrands = async () => {
     try {
       const response = await fetch("http://localhost:5000/brands");
-      const data = await response.json();
-      setBrands(data);
+      const responseData = await response.json();
+      setBrandList(responseData);
     } catch (error) {
       console.log(error);
-      setBrands([]);
+      setBrandList([]);
     }
   };
 
   useEffect(() => {
-    getProducts();
-    getBrands();
+    fetchProducts();
+    fetchBrands();
   }, []);
 
-  const selectProduct = async (id) => {
-    navigate(`/singleproduct/${id}`);
+  const handleProductClick = (productId) => {
+    navigate(`/singleproduct/${productId}`);
   };
 
   return (
     <section className="text-white bg-[#c9d0cd] pt-18">
-      {/* HERO SECTION */}
+      {/* ── HERO ── */}
       <div className="p-4">
-        <div className="relative w-full h-[80vh] flex items-center justify-center text-black rounded-2xl overflow-hidden">
+        <div className="relative w-full h-[88vh] flex items-center justify-center rounded-3xl overflow-hidden">
           <img
-            src={home}
-            alt="hero"
-            className="absolute w-full h-full object-cover"
+            src={homeHeroImage}
+            alt="New collection hero"
+            className="absolute inset-0 w-full h-full object-cover"
           />
+          {/* dark scrim */}
+          <div className="absolute inset-0" />
 
-          {/* Center Overlay Content */}
-          <div className="relative z-20 text-center">
-            <h1 className="text-5xl lg:text-7xl text-black">
-              <p className="mr-70 font-playfair">NEW</p>
-              <span className="font-bold font-poppins">COLLECTION</span>
-            </h1>
-
-            <p className="text-md font-semibold mt-2">
-              Fresh Textures, Light Layers and Summer-ready styles.
+          <div className="relative z-10 text-center px-4">
+            <p className="font-playfair font-semibold text-black/90 tracking-[0.35em] text-sm mb-2 uppercase">
+              Summer 2025
             </p>
-
-            <div className="flex gap-8 items-center justify-center mt-4">
-              <button className="bg-[#f2f2f2] cursor-pointer text-[#25343f] mt-4 px-11 py-2 text-xl hover:text-[#f2f2f2] hover:bg-[#25343f] font-semibold rounded-md transition duration-300">
+            <h1 className="font-poppins font-semibold text-6xl md:text-8xl text-black leading-none">
+              New
+            </h1>
+            <h1 className="font-poppins font-black text-6xl md:text-8xl text-black leading-none tracking-tight">
+              Collection
+            </h1>
+            <p className="text-black/70 text-sm md:text-base mt-4 font-medium tracking-wide">
+              Fresh Textures · Light Layers · Summer-Ready Styles
+            </p>
+            <div className="flex gap-4 items-center justify-center mt-8">
+              <button className="bg-white text-[#1a2a33] px-10 py-3 text-sm font-bold tracking-widest uppercase rounded-full hover:bg-[#1a2a33] hover:text-white transition duration-300">
                 Men
               </button>
-              <button className="bg-[#f2f2f2] cursor-pointer text-[#25343f] mt-4 px-8 py-2 text-xl hover:text-[#f2f2f2] hover:bg-[#25343f] font-semibold rounded-md transition duration-300">
+              <button className="bg-transparent  bg-white text-[#1a2a33] px-10 py-3 text-sm font-bold tracking-widest uppercase rounded-full hover:bg-[#1a2a33] hover:text-white transition duration-300">
                 Women
               </button>
             </div>
           </div>
         </div>
       </div>
-      {/* CARDS */}
-      <div className="px-4 flex flex-wrap justify-between gap-8">
-        {data.cards.map((card, index) => (
+
+      {/* ── FEATURE CARDS ── */}
+      <div className="px-4 py-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {featuredCards.map((card, cardIndex) => (
           <div
-            key={index}
-            className="relative h-56 rounded-3xl overflow-hidden w-full md:w-[48%] lg:w-[30%]"
+            key={cardIndex}
+            className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer"
           >
             <img
-              src={card.img}
+              src={card.image}
               alt={card.title}
-              className="absolute inset-0 w-full h-full object-cover opacity-80"
+              className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/25" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
             <div className="relative z-10 p-5 h-full flex flex-col justify-between">
               {card.tag && (
-                <span className="text-xs bg-white/20 px-3 py-1 rounded-full w-fit">
+                <span className="text-xs bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full w-fit border border-white/20">
                   {card.tag}
                 </span>
               )}
-
               <div>
-                <h3 className="text-lg font-semibold">{card.title}</h3>
-                {card.desc && (
-                  <p className="text-sm text-white/70 mt-1">{card.desc}</p>
+                <h3 className="text-base font-semibold text-white">
+                  {card.title}
+                </h3>
+                {card.description && (
+                  <p className="text-sm text-white/70 mt-1">
+                    {card.description}
+                  </p>
                 )}
               </div>
             </div>
@@ -129,85 +137,96 @@ const Homepage = () => {
         ))}
       </div>
 
-      {/* PRODUCTS */}
-      <div className="w-full min-h-screen px-4 md:px-10 py-8">
-        <div className="flex justify-between items-center mb-9">
-          <p className="text-xs text-gray-400">NEW ARRIVAL</p>
+      {/* ── PRODUCTS ── */}
+      <div className="w-full px-4 md:px-10 py-12">
+        {/* Section Header */}
+        <div className="flex justify-between items-start mb-10">
+          <div className="flex flex-col gap-1">
+            <p className="text-xs tracking-widest text-gray-500 uppercase">
+              New Arrival
+            </p>
+            <div className="w-8 h-0.5 bg-gray-400" />
+          </div>
 
-          <h1 className="text-black font-bold text-center text-4xl md:text-6xl">
-            FRESH FITS FOR YOU <br /> NEXT FUNCTION!
-          </h1>
+          <h2 className="text-black font-black text-center text-3xl md:text-5xl leading-tight">
+            Fresh Fits For Your <br /> Next Function
+          </h2>
 
-          <p className="text-xs text-gray-400">TOP PICKS</p>
+          <div className="flex flex-col items-end gap-1">
+            <p className="text-xs tracking-widest text-gray-500 uppercase">
+              Top Picks
+            </p>
+            <div className="w-8 h-0.5 bg-gray-400 self-end" />
+          </div>
         </div>
 
-        <div className="flex flex-wrap justify-between gap-5">
-          {products.slice(0, 8).map((product, index) => (
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {productList.slice(0, 8).map((product, productIndex) => (
             <div
-              key={index}
-              onClick={() => selectProduct(product._id)}
-              className="relative rounded-2xl cursor-pointer overflow-hidden w-full sm:w-[48%] md:w-[31%] lg:w-[23%] group"
+              key={productIndex}
+              onClick={() => handleProductClick(product._id)}
+              className="relative rounded-2xl cursor-pointer overflow-hidden group shadow-sm"
             >
-              {/* IMAGE */}
               <img
                 src={`http://localhost:5000/product/${product.image[0]}`}
                 alt={product.title}
-                className="w-full h-[60vh] object-cover object-top transition duration-300 group-hover:scale-105"
+                className="w-full h-[58vh] object-cover object-top transition duration-500 group-hover:scale-105"
               />
 
-              {/* OVERLAY */}
-              <div className="absolute inset-0 p-3 flex flex-col justify-between">
-                {/* ✅ BRAND FIX */}
-                <div className="flex justify-end">
-                  <span className="text-black bg-gray-100 rounded-xl px-2 py-1 font-bold">
-                    {product.brand?.title}
-                  </span>
-                </div>
+              {/* Brand badge */}
+              <div className="absolute top-3 right-3">
+                <span className="text-xs text-gray-800 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 font-semibold shadow-sm">
+                  {product.brand?.title}
+                </span>
+              </div>
 
-                {/* BOTTOM */}
-                <div className="font-semibold text-black bg-gray-100 flex items-center justify-between rounded-2xl p-2">
-                  <div>
-                    <p>{product.title}</p>
-                    <p>INR {product.price}</p>
-                  </div>
-
-                  {/* ✅ LINK FIX */}
-                  <Link
-                    to={`/singleproduct/${product._id}`}
-                    onClick={(e) => e.stopPropagation()} // important
-                    className="rounded-full bg-gray-300 w-10 h-10 flex items-center justify-center hover:bg-black hover:text-white transition"
-                  >
-                    <MdKeyboardArrowRight />
-                  </Link>
+              {/* Bottom info bar */}
+              <div className="absolute bottom-0 left-0 right-0 m-3 bg-white/90 backdrop-blur-sm rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">
+                    {product.title}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    INR {product.price}
+                  </p>
                 </div>
+                <Link
+                  to={`/singleproduct/${product._id}`}
+                  onClick={(clickEvent) => clickEvent.stopPropagation()}
+                  className="rounded-full bg-gray-200 w-9 h-9 flex items-center justify-center hover:bg-black hover:text-white transition duration-300 shrink-0 ml-2"
+                  aria-label={`View ${product.title}`}
+                >
+                  <MdKeyboardArrowRight size={18} />
+                </Link>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* BRANDS */}
-      <div className="w-full px-10 py-8 bg-gray-300">
-        <h2 className="text-4xl font-bold text-center mb-8 text-black">
-          OUR BRANDS
+      {/* ── BRANDS ── */}
+      <div className="w-full px-10 py-12 bg-gray-200">
+        <p className="text-xs tracking-widest text-gray-500 uppercase text-center mb-2">
+          Partners
+        </p>
+        <h2 className="text-3xl font-black text-center text-black mb-8">
+          Our Brands
         </h2>
 
         <div
-          className="flex gap-5 overflow-x-auto no-scrollbar overflow-hidden "
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
+          className="flex gap-5 overflow-x-auto"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {brands.map((brand, index) => (
+          {brandList.map((brand, brandIndex) => (
             <div
-              key={index}
-              className="min-w-[180px] h-28 bg-gray-100 rounded-2xl flex items-center justify-center shadow-md relative"
+              key={brandIndex}
+              className="min-w-[160px] h-24 bg-white rounded-2xl flex items-center justify-center border border-gray-200 hover:border-gray-400 transition duration-300 shrink-0"
             >
               <img
                 src={`http://localhost:5000/brand/${brand.image[0]}`}
                 alt={brand.title}
-                className="absolute object-cover rounded-2xl p-5"
+                className="max-h-14 max-w-[120px] object-contain"
               />
             </div>
           ))}

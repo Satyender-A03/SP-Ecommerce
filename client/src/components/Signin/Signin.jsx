@@ -11,7 +11,7 @@ const Signin = () => {
     uName: "",
     password: "",
   });
-  x;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -27,7 +27,6 @@ const Signin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // ✅ token save
         localStorage.setItem("accessToken", data.accessToken);
 
         navigate("/"); // redirect
@@ -81,7 +80,6 @@ const Signin = () => {
               />
             </div>
 
-            {/* BUTTON */}
             <button
               className="bg-blue-500 hover:bg-blue-600 cursor-pointer text-white py-2 rounded-md font-semibold"
               onClick={handleSubmit}
