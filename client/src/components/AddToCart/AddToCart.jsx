@@ -22,7 +22,7 @@ const AddtoCart = () => {
   const totalPrice = subtotal + shipping;
 
   return (
-    <div className="max-w-7xl mx-auto pt-28 px-6">
+    <div className="max-w-7xl mx-auto pt-25 px-6 pb-5">
       <h2 className="text-4xl font-bold mb-10">Shopping Cart</h2>
 
       {cart.length === 0 ? (

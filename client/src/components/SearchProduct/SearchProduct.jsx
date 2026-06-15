@@ -9,16 +9,10 @@ const SearchProducts = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const selectProduct = (id) => {
-    navigate(`/singleproduct/${id}`);
-  };
-
   useEffect(() => {
-    // ✅ URL se query lo agar context empty hai (page refresh case)
     const urlQuery = searchParams.get("q") || "";
     const activeQuery = search || urlQuery;
 
-    // ✅ Context sync karo agar URL se aaya
     if (!search && urlQuery) {
       setSearch(urlQuery);
     }
@@ -54,46 +48,53 @@ const SearchProducts = () => {
   const displayQuery = search || searchParams.get("q") || "";
 
   return (
-    <div className="p-10 pt-24 bg-gray-200 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6 text-black">
+    <div className="w-full min-h-screen bg-[#e8e8e8] px-6 md:px-10 pt-22 pb-10">
+      {/* HEADING */}
+      <h2 className="text-2xl sm:text-3xl font-bold text-black mb-6">
         Search results for "{displayQuery}"
-      </h1>
+      </h2>
 
       {searchResults.length === 0 ? (
-        <p className="text-gray-500 text-lg">No products found.</p>
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <p className="text-xl font-bold text-gray-600">No Products Found</p>
+          <p className="text-sm text-gray-400 mt-1">
+            Try a different search term
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {searchResults.map((item) => (
             <div
               key={item._id}
-              onClick={() => selectProduct(item._id)}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group"
+              onClick={() => navigate(`/singleproduct/${item._id}`)}
+              className="bg-white rounded-2xl overflow-hidden cursor-pointer group relative shadow-sm hover:shadow-md transition-shadow duration-300"
             >
-              {/* IMAGE */}
-              <img
-                src={`http://localhost:5000/product/${item.image?.[0]}`}
-                alt={item.title}
-                className="w-full h-[60vh] object-cover object-top"
-              />
+              {/* Brand badge */}
+              <div className="absolute top-3 right-3 z-10">
+                <span className="bg-white text-gray-800 text-sm font-semibold px-3 py-1 rounded-full shadow-sm">
+                  {item.brand?.title || "Brand"}
+                </span>
+              </div>
 
-              {/* OVERLAY */}
-              <div className="absolute inset-0 p-3 flex flex-col justify-between">
-                {/* BRAND */}
-                <div className="flex justify-end">
-                  <span className="bg-white px-3 py-1 rounded-xl font-semibold">
-                    {item.brand?.title || "Brand"}
-                  </span>
+              {/* Image */}
+              <div className="h-[50vh] overflow-hidden">
+                <img
+                  src={`http://localhost:5000/product/${item.image?.[0]}`}
+                  alt={item.title}
+                  className="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105"
+                />
+              </div>
+
+              {/* Bottom info */}
+              <div className="flex items-center justify-between px-4 py-3">
+                <div>
+                  <p className="font-bold text-gray-900 text-[15px]">
+                    {item.title}
+                  </p>
+                  <p className="text-gray-600 text-sm mt-0.5">₹ {item.price}</p>
                 </div>
-
-                {/* BOTTOM INFO */}
-                <div className="bg-white flex justify-between items-center rounded-2xl p-3">
-                  <div>
-                    <p className="font-semibold">{item.title}</p>
-                    <p>₹ {item.price}</p>
-                  </div>
-                  <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-full text-2xl">
-                    <MdKeyboardArrowRight />
-                  </div>
+                <div className="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-full text-xl group-hover:bg-black group-hover:text-white transition duration-300 flex-shrink-0">
+                  <MdKeyboardArrowRight />
                 </div>
               </div>
             </div>

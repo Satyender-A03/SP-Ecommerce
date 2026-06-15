@@ -1,19 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
+import Footer from "./components/Footer/Footer";
 import Homepage from "./components/Homepage/Homepage";
 import "./index.css";
 import SingleProduct from "./components/SingleProduct/SingleProduct";
-import Products from "./pages/Products";
+import Products from "./pages/Products/Products";
 import SearchProducts from "./components/SearchProduct/SearchProduct";
 import { SearchProvider } from "./Context/Search";
 import { CartProvider } from "./Context/Cart";
-import { AuthProvider } from "./Context/Auth"; // 🔥 ADD
+import { AuthProvider } from "./Context/Auth";
+import { WishlistProvider } from "./Context/Wishlist"; // 🔥 ADD
 import AddtoCart from "./components/AddToCart/AddToCart";
 import Checkout from "./components/CheckOut/CheckOut";
 import Signin from "./components/Signin/Signin";
 import CreateSignin from "./components/Signin/CreateSignin";
-import Profile from "./components/UserProfile/UserProfile"; // 🔥 ADD
+import Profile from "./components/UserProfile/UserProfile";
 import OrderPage from "./components/OrderPage/OrderPage";
+import Wishlist from "./pages/Wishlist/Wishlist";
 
 const App = () => {
   return (
@@ -21,23 +24,32 @@ const App = () => {
       <AuthProvider>
         <SearchProvider>
           <CartProvider>
-            <Router>
-              <Navbar />
+            <WishlistProvider>
+              {" "}
+              {/* 🔥 WRAP */}
+              <Router>
+                <Navbar />
 
-              <Routes>
-                <Route path="/signin" element={<Signin />} />
-                <Route path="/create" element={<CreateSignin />} />
+                <Routes>
+                  <Route path="/signin" element={<Signin />} />
+                  <Route path="/create" element={<CreateSignin />} />
+                  <Route path="/order" element={<OrderPage />} />
+                  <Route path="/" element={<Homepage />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/wishlist" element={<Wishlist />} />
+                  <Route
+                    path="/singleproduct/:id"
+                    element={<SingleProduct />}
+                  />
+                  <Route path="/addtocart" element={<AddtoCart />} />
+                  <Route path="/searchproduct" element={<SearchProducts />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/profile" element={<Profile />} />
+                </Routes>
 
-                <Route path="/order" element={<OrderPage />} />
-                <Route path="/" element={<Homepage />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/singleproduct/:id" element={<SingleProduct />} />
-                <Route path="/addtocart" element={<AddtoCart />} />
-                <Route path="/searchproduct" element={<SearchProducts />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/profile" element={<Profile />} />
-              </Routes>
-            </Router>
+                <Footer />
+              </Router>
+            </WishlistProvider>
           </CartProvider>
         </SearchProvider>
       </AuthProvider>

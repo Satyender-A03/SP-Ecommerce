@@ -19,3 +19,25 @@ body {
   height: 100vh;
   overflow-x: hidden;
 }
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade-up {
+  animation: fadeUp 0.6s ease-out forwards;
+}
+
+/* 🔥 Initial hidden state — pure CSS, no blink */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: none;
+}
