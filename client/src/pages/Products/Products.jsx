@@ -194,13 +194,13 @@ const Products = () => {
             <div
               key={item._id}
               onClick={() => navigate(`/singleproduct/${item._id}`)}
-              className="relative rounded-2xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-md transition-shadow duration-300 h-[50vh]"
+              className="relative rounded-2xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-md transition-shadow duration-300 h-[58vh]"
             >
               {/* Image */}
               <img
                 src={`http://localhost:5000/product/${item.image[0]}`}
                 alt={item.title}
-                className="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105"
+                className="w-full h-[58vh] object-cover object-top transition duration-500 group-hover:scale-105"
               />
 
               {/* Brand badge */}

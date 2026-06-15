@@ -12,12 +12,12 @@ export const CartProvider = ({ children }) => {
     }
   });
 
-  // ✅ localStorage sync (NO console here)
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product) => {
+  // 🔥 qty parameter support add kiya
+  const addToCart = (product, qty = 1) => {
     setCart((prev) => {
       const exists = prev.find((item) => {
         const p = item.product || item;
@@ -27,19 +27,17 @@ export const CartProvider = ({ children }) => {
       if (exists) {
         return prev.map((item) => {
           const p = item.product || item;
-
           if (
             p._id === product._id &&
             p.selectedSize === product.selectedSize
           ) {
-            return { ...item, qty: (item.qty || 1) + 1 };
+            return { ...item, qty: (item.qty || 1) + qty };
           }
-
           return item;
         });
       }
 
-      return [...prev, { product, qty: 1 }];
+      return [...prev, { product, qty }]; // 🔥 qty directly set
     });
   };
 
@@ -56,11 +54,9 @@ export const CartProvider = ({ children }) => {
     setCart((prev) =>
       prev.map((item) => {
         const p = item.product || item;
-
         if (p._id === id && p.selectedSize === size) {
           return { ...item, qty: item.qty + 1 };
         }
-
         return item;
       }),
     );
@@ -70,19 +66,22 @@ export const CartProvider = ({ children }) => {
     setCart((prev) =>
       prev.map((item) => {
         const p = item.product || item;
-
         if (p._id === id && p.selectedSize === size && item.qty > 1) {
           return { ...item, qty: item.qty - 1 };
         }
-
         return item;
       }),
     );
   };
 
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem("cart");
+  };
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, incQty, decQty }}
+      value={{ cart, addToCart, removeFromCart, incQty, decQty, clearCart }}
     >
       {children}
     </CartContext.Provider>

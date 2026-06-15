@@ -17,6 +17,7 @@ import CreateSignin from "./components/Signin/CreateSignin";
 import Profile from "./components/UserProfile/UserProfile";
 import OrderPage from "./components/OrderPage/OrderPage";
 import Wishlist from "./pages/Wishlist/Wishlist";
+import Review from "./components/Review/Review";
 
 const App = () => {
   return (
@@ -41,6 +42,7 @@ const App = () => {
                     path="/singleproduct/:id"
                     element={<SingleProduct />}
                   />
+                  <Route path="/review" element={<Review />} />
                   <Route path="/addtocart" element={<AddtoCart />} />
                   <Route path="/searchproduct" element={<SearchProducts />} />
                   <Route path="/checkout" element={<Checkout />} />

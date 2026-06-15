@@ -1,25 +1,21 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { CartContext } from "../../Context/Cart";
 import { Auth } from "../../Context/Auth";
 import { useNavigate } from "react-router-dom";
 import { MdCheckCircle, MdError, MdInfo } from "react-icons/md";
 
-// 🔥 Toast component
 const Toast = ({ message, type }) => {
   if (!message) return null;
-
   const styles = {
     success: "bg-green-50 border-green-400 text-green-800",
     error: "bg-red-50 border-red-400 text-red-800",
     info: "bg-blue-50 border-blue-400 text-blue-800",
   };
-
   const icons = {
     success: <MdCheckCircle className="text-green-500 text-xl shrink-0" />,
     error: <MdError className="text-red-500 text-xl shrink-0" />,
     info: <MdInfo className="text-blue-500 text-xl shrink-0" />,
   };
-
   return (
     <div
       className={`flex items-center gap-3 border rounded-xl px-4 py-3 mb-6 ${styles[type]}`}
@@ -35,28 +31,34 @@ const Checkout = () => {
   const { user } = useContext(Auth);
   const navigate = useNavigate();
 
+  // 🔥 localStorage se purana data load karo
+  const savedForm = JSON.parse(localStorage.getItem("shippingInfo") || "{}");
+
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
+    name: savedForm.name || "",
+    email: savedForm.email || "",
+    phone: savedForm.phone || "",
+    address: savedForm.address || "",
+    city: savedForm.city || "",
+    state: savedForm.state || "",
+    pincode: savedForm.pincode || "",
   });
 
-  // 🔥 Toast state
   const [toast, setToast] = useState({ message: "", type: "info" });
 
   const showToast = (message, type = "info") => {
     setToast({ message, type });
-    // 4 sec baad auto hide
     setTimeout(() => setToast({ message: "", type: "info" }), 4000);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    const updated = { ...form, [name]: value };
+    setForm(updated);
+
+    // 🔥 har change pe localStorage update karo
+    localStorage.setItem("shippingInfo", JSON.stringify(updated));
+
     if (name === "pincode") fetchPincodeData(value);
   };
 
@@ -69,11 +71,15 @@ const Checkout = () => {
       const data = await res.json();
       if (data[0].Status === "Success") {
         const postOffice = data[0].PostOffice[0];
-        setForm((prev) => ({
-          ...prev,
+        const updated = {
+          ...form,
+          pincode,
           city: postOffice.District,
           state: postOffice.State,
-        }));
+        };
+        setForm(updated);
+        // 🔥 city/state bhi save karo
+        localStorage.setItem("shippingInfo", JSON.stringify(updated));
       } else {
         showToast("Invalid Pincode. Please check and try again.", "error");
       }
@@ -124,7 +130,6 @@ const Checkout = () => {
   };
 
   const handlePayment = async () => {
-    // 🔥 Validation — fields check
     if (!form.name || !form.phone || !form.address || !form.pincode) {
       showToast("Please fill all required fields marked with *", "error");
       return;
@@ -155,14 +160,13 @@ const Checkout = () => {
         description: "Order Payment",
         order_id: data.id,
 
-        // 🔥 Payment success
         handler: async function (response) {
           const paymentId = response.razorpay_payment_id;
-
           showToast("Payment successful! Saving your order...", "success");
 
           await saveOrderToDB(paymentId);
 
+          // 🔥 customerInfo save (order page ke liye)
           localStorage.setItem(
             "customerInfo",
             JSON.stringify({
@@ -172,11 +176,9 @@ const Checkout = () => {
             }),
           );
 
-          localStorage.setItem("paymentDone", "true"); // 🔥
           navigate("/order");
         },
 
-        // 🔥 Payment cancel / modal close
         modal: {
           ondismiss: function () {
             showToast(
@@ -197,7 +199,6 @@ const Checkout = () => {
 
       const paymentObject = new window.Razorpay(options);
 
-      // 🔥 Payment failed
       paymentObject.on("payment.failed", function (response) {
         showToast(`Payment failed: ${response.error.description}`, "error");
       });
@@ -213,41 +214,53 @@ const Checkout = () => {
     <div className="max-w-7xl mx-auto pt-24 px-6 pb-16">
       <h2 className="text-3xl font-bold mb-6">Checkout</h2>
 
-      {/* 🔥 Toast message */}
       <Toast message={toast.message} type={toast.type} />
 
       <div className="flex flex-col lg:flex-row gap-10">
         {/* LEFT - FORM */}
         <div className="flex-1 bg-white p-6 rounded-xl shadow">
-          <h3 className="text-xl font-semibold mb-4">Shipping Details</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Shipping Details</h3>
+            {/* 🔥 Saved indicator */}
+            {savedForm.name && (
+              <span className="text-xs text-green-600 font-semibold bg-green-50 px-3 py-1 rounded-full border border-green-200">
+                ✓ Auto-filled from last order
+              </span>
+            )}
+          </div>
 
           <div className="grid gap-4">
             <input
               name="name"
+              value={form.name}
               placeholder="Full Name *"
               onChange={handleChange}
               className="p-3 border rounded focus:outline-none focus:border-black"
             />
             <input
               name="email"
+              value={form.email}
               placeholder="Email"
               onChange={handleChange}
               className="p-3 border rounded focus:outline-none focus:border-black"
             />
             <input
               name="phone"
+              value={form.phone}
               placeholder="Phone *"
               onChange={handleChange}
               className="p-3 border rounded focus:outline-none focus:border-black"
             />
             <input
               name="address"
+              value={form.address}
               placeholder="Address *"
               onChange={handleChange}
               className="p-3 border rounded focus:outline-none focus:border-black"
             />
             <input
               name="pincode"
+              value={form.pincode}
               placeholder="Pincode *"
               onChange={handleChange}
               maxLength={6}
