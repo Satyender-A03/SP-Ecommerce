@@ -99,6 +99,36 @@ const login = async (req, res) => {
   }
 };
 
+// ── UPDATE USER — authController.js mein add karo ────────────────────────────
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fName, lName, email, phone, address } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "User Not Found" });
+
+    if (fName !== undefined) user.fName = fName;
+    if (lName !== undefined) user.lName = lName;
+    if (email !== undefined) user.email = email;
+    if (phone !== undefined) user.phone = phone;
+    if (address !== undefined) user.address = address;
+
+    await user.save();
+
+    const updated = user.toObject();
+    delete updated.password;
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user: { ...updated, name: `${updated.fName} ${updated.lName}`.trim() },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "SERVER ERROR" });
+  }
+};
+
 const refresh = async (req, res) => {
   try {
     const cookies = req.cookies;
@@ -270,6 +300,7 @@ const resetPassword = async (req, res) => {
 module.exports = {
   register,
   login,
+  updateUser,
   refresh,
   getUser,
   logout,

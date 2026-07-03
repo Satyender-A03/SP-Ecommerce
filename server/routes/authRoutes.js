@@ -5,6 +5,10 @@ const {
   refresh,
   logout,
   getUser,
+  forgotPassword,
+  verifyOtp,
+  resetPassword,
+  updateUser,
 } = require("../controllers/authController");
 const verifyJWT = require("../middleware/verifyJWT");
 
@@ -14,6 +18,10 @@ router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/refresh").post(refresh);
 router.route("/logout").post(logout);
-router.route("/:id").get(verifyJWT, getUser);
+router.route("/forgot-password").post(forgotPassword);
+router.route("/verify-otp").post(verifyOtp);
+router.route("/reset-password").post(resetPassword);
+router.route("/update/:id").put(updateUser); // ← naya
+router.route("/:id").get(verifyJWT, getUser); // ← sabse baad — warna :id sab match kar leta
 
 module.exports = router;

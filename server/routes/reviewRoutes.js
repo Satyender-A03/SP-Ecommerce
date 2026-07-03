@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 const {
   createReview,
   getAllReviews,
@@ -11,10 +12,15 @@ const {
   deleteReiview,
 } = require("../controllers/reviewController");
 
-// 🔥 Multer config — review photos
+// 🔥 Ensure folder exists before multer uses it
+const reviewDir = path.join(__dirname, "../public/review");
+if (!fs.existsSync(reviewDir)) {
+  fs.mkdirSync(reviewDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/review"); // public/review folder me save hoga
+    cb(null, path.join(__dirname, "../public/review"));
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -23,7 +29,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /jpeg|jpg|png|webp/;
     const ext = allowed.test(path.extname(file.originalname).toLowerCase());
@@ -36,7 +42,7 @@ const upload = multer({
 router
   .route("/")
   .get(getAllReviews)
-  .post(upload.array("photos", 3), createReview); // max 3 photos
+  .post(upload.array("photos", 3), createReview);
 router.route("/product/:id").get(getProductReviews);
 router
   .route("/:id")
