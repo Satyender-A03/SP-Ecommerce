@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Auth } from "../../Context/Auth";
 import { FiPackage, FiShoppingBag } from "react-icons/fi";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import API_URL from "../../Constent";
 
 const OrderPage = () => {
   const { user } = useContext(Auth);
@@ -22,9 +23,8 @@ const OrderPage = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/order");
+      const res = await fetch(`${API_URL}/order`);
       const data = await res.json();
-
       const userId = user?._id || "guest";
       const myOrders = Array.isArray(data)
         ? data.filter((o) => o.userId === userId)
@@ -37,7 +37,7 @@ const OrderPage = () => {
           if (!productMap[order.productId]) {
             try {
               const pRes = await fetch(
-                `http://localhost:5000/products/${order.productId}`,
+                `${API_URL}/products/${order.productId}`,
               );
               const pData = await pRes.json();
               productMap[order.productId] = pData;
@@ -69,9 +69,15 @@ const OrderPage = () => {
     }
   };
 
+  const goToProduct = (product, order) => {
+    if (!product) return;
+    navigate(`/singleproduct/${product._id}`, {
+      state: { selectedSize: order.size },
+    });
+  };
+
   return (
     <div className="w-full min-h-screen bg-[#e8e8e8] px-6 md:px-10 pt-20 pb-10">
-      {/* HEADING */}
       <div className="flex items-center gap-3 mb-6">
         <FiPackage className="text-2xl text-gray-700" />
         <h2 className="text-2xl sm:text-3xl font-bold text-black">My Orders</h2>
@@ -82,7 +88,7 @@ const OrderPage = () => {
         )}
       </div>
 
-      {/* Customer info — sirf tab dikhao jab ho */}
+      {/* Customer Info */}
       {customerInfo && (
         <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm flex flex-wrap gap-6">
           <div>
@@ -128,7 +134,7 @@ const OrderPage = () => {
         </div>
       )}
 
-      {/* ORDERS */}
+      {/* Orders */}
       {loading ? (
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -162,58 +168,100 @@ const OrderPage = () => {
       ) : (
         <div className="flex flex-col gap-4">
           {orders.map((order, i) => {
-            const product = products[order.productId];
+            const pid = Array.isArray(order.productId)
+              ? order.productId[0]
+              : order.productId;
+            const product = products[pid];
             return (
               <div
                 key={order._id || i}
-                className="bg-white rounded-2xl p-4 shadow-sm flex gap-4 items-center hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl p-4 shadow-sm flex gap-4 items-start hover:shadow-md transition-shadow"
               >
+                {/* Product Image */}
                 <div
-                  className="w-20 h-20 rounded-xl overflow-hidden shrink-0 cursor-pointer"
-                  onClick={() =>
-                    product && navigate(`/singleproduct/${product._id}`)
-                  }
+                  className="w-24 h-24 rounded-xl overflow-hidden shrink-0 cursor-pointer bg-gray-100"
+                  onClick={() => goToProduct(product, order)}
                 >
                   {product?.image?.[0] ? (
                     <img
-                      src={`http://localhost:5000/product/${product.image[0]}`}
+                      src={`${API_URL}/product/${product.image[0]}`}
                       alt={product?.title}
                       className="w-full h-full object-cover object-top"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center">
                       <FiPackage className="text-gray-400 text-2xl" />
                     </div>
                   )}
                 </div>
 
+                {/* Product Details */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-gray-900 truncate">
+                  <p className="font-bold text-gray-900 text-base truncate">
                     {product?.title || "Product"}
                   </p>
-                  <div className="flex flex-wrap gap-3 mt-1">
-                    <p className="text-sm text-gray-500">₹ {order.price}</p>
-                    <p className="text-sm text-gray-400">Qty: {order.qty}</p>
-                    {order.color && (
-                      <p className="text-sm text-gray-400">
-                        Color: {order.color}
-                      </p>
+
+                  {/* Description */}
+                  {product?.description && (
+                    <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">
+                      {product.description}
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap gap-3 mt-2">
+                    <span className="text-sm font-semibold text-gray-800">
+                      ₹ {order.price}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      Qty: {order.qty}
+                    </span>
+                    {order.size && order.size !== "-" && (
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                        Size: {order.size}
+                      </span>
+                    )}
+                    {order.color && order.color !== "-" && (
+                      <span className="text-sm text-gray-500 flex items-center gap-1">
+                        Color:
+                        <span
+                          className="inline-block w-4 h-4 rounded-full border border-gray-300"
+                          style={{ background: order.color }}
+                        />
+                      </span>
+                    )}
+                    {product?.category && (
+                      <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                        {product.category}
+                      </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 font-mono mt-1 truncate">
-                    Payment: {order.paymentId}
+
+                  {/* Payment ID */}
+                  <p className="text-xs text-gray-300 font-mono mt-1.5 truncate">
+                    #{order.paymentId}
                   </p>
                 </div>
 
+                {/* Status + Arrow */}
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <span
                     className={`text-xs font-bold px-3 py-1 rounded-full ${statusStyle(order.status)}`}
                   >
                     {order.status || "Processing"}
                   </span>
+                  {order.awbCode && (
+                    <a
+                      href={`https://shiprocket.co/tracking/${order.awbCode}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-purple-600 font-semibold bg-purple-50 px-3 py-1 rounded-full border border-purple-200 hover:bg-purple-100 transition"
+                    >
+                      🚚 Track
+                    </a>
+                  )}
                   {product && (
                     <button
-                      onClick={() => navigate(`/singleproduct/${product._id}`)}
+                      onClick={() => goToProduct(product, order)}
                       className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full hover:bg-black hover:text-white transition"
                     >
                       <MdKeyboardArrowRight />

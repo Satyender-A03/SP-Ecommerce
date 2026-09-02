@@ -6,6 +6,7 @@ const {
   getAllProducts,
   createProduct,
   updateProduct,
+  updateStock, // 👈 new controller function
   getSingleProduct,
   deleteProduct,
 } = require("../controllers/productController");
@@ -29,6 +30,7 @@ router.get("/:id", getSingleProduct);
 router.delete("/:id", deleteProduct);
 
 router.post("/upload", upload.array("image", 5), createProduct);
-router.patch("/:id", upload.array("image", 5), updateProduct);
+router.patch("/:id", upload.array("image", 5), updateProduct); // for edits with images
+router.patch("/:id/stock", updateStock); // 👈 plain JSON, no multer
 
 module.exports = router;

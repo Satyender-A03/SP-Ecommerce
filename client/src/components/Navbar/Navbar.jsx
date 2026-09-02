@@ -11,6 +11,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { IoSearchSharp } from "react-icons/io5";
 import { SearchContext } from "../../Context/Search";
 import { Auth } from "../../Context/Auth"; // 🔥 Auth (same as context file)
+import { CartContext } from "../../Context/Cart";
 
 const Navbar = () => {
   const [inputValue, setInputValue] = useState("");
@@ -19,9 +20,12 @@ const Navbar = () => {
 
   const { setSearch } = useContext(SearchContext);
   const { isLoggedIn, user, logout } = useContext(Auth); // 🔥 Auth context
+  const { cart } = useContext(CartContext);
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const cartCount = cart.reduce((total, item) => total + (item.qty || 1), 0);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -97,8 +101,16 @@ const Navbar = () => {
           </Link>
 
           {/* CART */}
-          <Link to="/addtocart" className="hover:text-gray-300 transition">
+          <Link
+            to="/addtocart"
+            className="relative hover:text-gray-300 transition"
+          >
             <FiShoppingCart className="text-2xl" />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4.5 h-4.5 min-w-[18px] min-h-[18px] px-1 rounded-full flex items-center justify-center">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
           </Link>
 
           {/* PROFILE ICON — always visible, dropdown me login check */}

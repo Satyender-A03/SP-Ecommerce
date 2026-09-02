@@ -18,6 +18,9 @@ import Profile from "./components/UserProfile/UserProfile";
 import OrderPage from "./components/OrderPage/OrderPage";
 import Wishlist from "./pages/Wishlist/Wishlist";
 import Review from "./components/Review/Review";
+import About from "./components/About/About";
+import ContactUs from "./components/ContactUs/ContactUs";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop"; // 🔥 ADD
 
 const App = () => {
   return (
@@ -29,6 +32,7 @@ const App = () => {
               {" "}
               {/* 🔥 WRAP */}
               <Router>
+                <ScrollToTop />
                 <Navbar />
 
                 <Routes>
@@ -38,6 +42,8 @@ const App = () => {
                   <Route path="/" element={<Homepage />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<ContactUs />} />
                   <Route
                     path="/singleproduct/:id"
                     element={<SingleProduct />}

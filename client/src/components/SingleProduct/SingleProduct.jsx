@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { CartContext } from "../../Context/Cart";
 import { WishlistContext } from "../../Context/Wishlist";
 import { Auth } from "../../Context/Auth";
@@ -14,10 +14,12 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import API_URL from "../../Constent";
 
 const SingleProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { cart, addToCart } = useContext(CartContext);
   const { addToWishlist, removeFromWishlist, isInWishlist } =
@@ -25,7 +27,9 @@ const SingleProduct = () => {
   const { isLoggedIn, user } = useContext(Auth);
 
   const [product, setProduct] = useState(null);
-  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(
+    location.state?.selectedSize || null,
+  );
   const [selectedImage, setSelectedImage] = useState(null);
   const [qty, setQty] = useState(1);
   const [error, setError] = useState("");
@@ -48,7 +52,7 @@ const SingleProduct = () => {
 
   const getProduct = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/products/${id}`);
+      const res = await fetch(`${API_URL}/products/${id}`);
       const data = await res.json();
       setProduct(data);
       if (data.image?.length > 0) setSelectedImage(data.image[0]);
@@ -59,7 +63,7 @@ const SingleProduct = () => {
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/review/product/${id}`);
+      const res = await fetch(`${API_URL}/review/product/${id}`);
       const data = await res.json();
       setReviews(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -68,8 +72,14 @@ const SingleProduct = () => {
   };
 
   useEffect(() => {
+    console.log("SingleProduct mounted, location.state:", location.state);
     getProduct();
     fetchReviews();
+    // Pre-fill selected size if navigated here from cart/orders with a size in state
+    if (location.state?.selectedSize) {
+      setSelectedSize(location.state.selectedSize);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (!product) {
@@ -115,7 +125,7 @@ const SingleProduct = () => {
     }
     addToCart({ ...product, selectedSize }, qty);
     try {
-      await fetch(`http://localhost:5000/products/${product._id}`, {
+      await fetch(`${API_URL}/products/${product._id}/stock`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ qty: stock - qty }),
@@ -169,7 +179,7 @@ const SingleProduct = () => {
       formData.append("reviews", reviewText);
       photos.forEach((photo) => formData.append("photos", photo));
 
-      const res = await fetch("http://localhost:5000/review", {
+      const res = await fetch(`${API_URL}/review`, {
         method: "POST",
         body: formData,
       });
@@ -193,7 +203,7 @@ const SingleProduct = () => {
 
   const handleDeleteReview = async (reviewId) => {
     try {
-      await fetch(`http://localhost:5000/review/${reviewId}`, {
+      await fetch(`${API_URL}/review/${reviewId}`, {
         method: "DELETE",
       });
       fetchReviews();
@@ -239,7 +249,7 @@ const SingleProduct = () => {
             {product.image?.map((img, i) => (
               <img
                 key={i}
-                src={`http://localhost:5000/product/${img}`}
+                src={`${API_URL}/product/${img}`}
                 onClick={() => setSelectedImage(img)}
                 className={`cursor-pointer border-2 rounded-lg h-40 object-cover ${
                   selectedImage === img
@@ -254,7 +264,7 @@ const SingleProduct = () => {
         {/* MAIN IMAGE */}
         <div className="w-[40%] flex justify-center">
           <img
-            src={`http://localhost:5000/product/${selectedImage}`}
+            src={`${API_URL}/product/${selectedImage}`}
             alt={product.title}
             className="w-[600px] object-cover shadow rounded-xl"
           />
@@ -375,7 +385,8 @@ const SingleProduct = () => {
                     setError("");
                   }}
                   className={`w-12 h-10 border-2 rounded-xl text-sm font-bold transition ${
-                    selectedSize === s.trim()
+                    selectedSize?.trim().toLowerCase() ===
+                    s.trim().toLowerCase()
                       ? "bg-black text-white border-black"
                       : "border-gray-300 text-gray-700 hover:border-black"
                   }`}
@@ -622,7 +633,7 @@ const SingleProduct = () => {
                       {r.photos.map((photo, i) => (
                         <img
                           key={i}
-                          src={`http://localhost:5000/review/${photo}`}
+                          src={`${API_URL}/review/${photo}`}
                           alt=""
                           className="w-24 h-24 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition"
                         />

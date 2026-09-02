@@ -178,11 +178,36 @@ const deleteProduct = async (req, res) => {
     return res.status(500).json({ message: "SERVER ERROR" });
   }
 };
+const updateStock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { qty } = req.body;
+
+    const product = await Product.findByIdAndUpdate(
+      id,
+      { qty },
+      { new: true, runValidators: true },
+    );
+
+    if (!product) {
+      return res.status(404).json({ message: "Product Not Found" });
+    }
+
+    return res.status(200).json({
+      message: "Stock Updated Successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("UPDATE STOCK ERROR", error);
+    return res.status(500).json({ message: "SERVER ERROR" });
+  }
+};
 
 module.exports = {
   createProduct,
   getSingleProduct,
   getAllProducts,
   updateProduct,
+  updateStock,
   deleteProduct,
 };

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff, FiMail } from "react-icons/fi";
 import { Auth } from "../../Context/Auth";
 import sign from "../../assets/sign.jpg";
+import API_URL from "../../Constent";
 
 // 🔥 Toast
 const Toast = ({ message, type }) => {
@@ -53,7 +54,7 @@ const Signin = () => {
     }
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/auth/login", {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),
@@ -80,7 +81,7 @@ const Signin = () => {
     }
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/auth/forgot-password", {
+      const res = await fetch(`${API_URL}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: forgotData.email }),
@@ -107,7 +108,7 @@ const Signin = () => {
     }
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/auth/verify-otp", {
+      const res = await fetch(`${API_URL}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: forgotData.email, otp: forgotData.otp }),
@@ -134,7 +135,7 @@ const Signin = () => {
     }
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/auth/reset-password", {
+      const res = await fetch(`${API_URL}/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(forgotData),

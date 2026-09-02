@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaAddressCard, FaRegUser, FaUserCircle } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom"; // ✅ navigate import
+import { Link, useNavigate } from "react-router-dom";
 import {
   MdDriveFileRenameOutline,
   MdOutlineEmail,
@@ -8,9 +8,12 @@ import {
   MdOutlinePhone,
 } from "react-icons/md";
 import sign from "../../assets/sign.jpg";
+import API_URL from "../../Constent";
 
 const CreateSignin = () => {
-  const navigate = useNavigate(); // ✅ navigate hook
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [signin, setSignin] = useState({
     uName: "",
@@ -24,25 +27,18 @@ const CreateSignin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (loading) return; // 🔥 double submit block
+    setError("");
     try {
-      const response = await fetch(
-        "http://localhost:5000/auth/register", // ✅ correct API
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(signin),
-        },
-      );
-
+      setLoading(true);
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signin),
+      });
       const data = await response.json();
-
       console.log("Server Response:", data);
-
       if (response.ok) {
-        // 🔥 reset form
         setSignin({
           uName: "",
           fName: "",
@@ -52,39 +48,41 @@ const CreateSignin = () => {
           address: "",
           phone: "",
         });
-
-        navigate("/signin"); // 🔥 redirect to login
+        navigate("/signin");
       } else {
-        alert(data.message);
+        setError(data.message || "Something went wrong.");
       }
     } catch (error) {
       console.log("Error:", error);
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="pt-20 min-h-screen flex items-center justify-center">
       <div className="grid grid-cols-1 md:grid-cols-2 w-[80%] rounded-2xl shadow-lg overflow-hidden">
-        {/* LEFT IMAGE */}
         <div>
           <img src={sign} alt="signup" className="object-cover h-full w-full" />
         </div>
-
-        {/* RIGHT FORM */}
         <div className="w-full text-black bg-white">
           <div className="flex flex-col gap-6 p-6">
-            {/* HEADING */}
             <div className="text-center flex gap-4 items-center justify-center">
               <FaUserCircle className="size-15 text-gray-700" />
               <h2 className="text-4xl font-bold">Create Account</h2>
             </div>
 
-            {/* FORM */}
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-xl text-sm">
+                ⚠ {error}
+              </div>
+            )}
+
             <form
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
               onSubmit={handleSubmit}
             >
-              {/* First Name */}
               <div className="flex items-center border-2 rounded-2xl overflow-hidden">
                 <MdDriveFileRenameOutline className="text-4xl bg-gray-300 w-12 p-2" />
                 <input
@@ -98,8 +96,6 @@ const CreateSignin = () => {
                   required
                 />
               </div>
-
-              {/* Last Name */}
               <div className="flex items-center border-2 rounded-2xl overflow-hidden">
                 <MdDriveFileRenameOutline className="text-4xl bg-gray-300 w-12 p-2" />
                 <input
@@ -113,8 +109,6 @@ const CreateSignin = () => {
                   required
                 />
               </div>
-
-              {/* Username */}
               <div className="flex items-center border-2 rounded-2xl overflow-hidden">
                 <FaRegUser className="text-4xl bg-gray-300 w-12 p-2" />
                 <input
@@ -128,8 +122,6 @@ const CreateSignin = () => {
                   required
                 />
               </div>
-
-              {/* Email */}
               <div className="flex items-center border-2 rounded-2xl overflow-hidden">
                 <MdOutlineEmail className="text-4xl bg-gray-300 w-12 p-2" />
                 <input
@@ -143,8 +135,6 @@ const CreateSignin = () => {
                   required
                 />
               </div>
-
-              {/* Password */}
               <div className="flex items-center border-2 rounded-2xl overflow-hidden">
                 <MdOutlinePassword className="text-4xl bg-gray-300 w-12 p-2" />
                 <input
@@ -158,8 +148,6 @@ const CreateSignin = () => {
                   required
                 />
               </div>
-
-              {/* Phone */}
               <div className="flex items-center border-2 rounded-2xl overflow-hidden">
                 <MdOutlinePhone className="text-4xl bg-gray-300 w-12 p-2" />
                 <input
@@ -173,8 +161,6 @@ const CreateSignin = () => {
                   required
                 />
               </div>
-
-              {/* Address */}
               <div className="flex items-center border-2 rounded-2xl overflow-hidden col-span-2">
                 <FaAddressCard className="text-4xl bg-gray-300 w-12 p-2" />
                 <input
@@ -188,19 +174,17 @@ const CreateSignin = () => {
                   required
                 />
               </div>
-
-              {/* BUTTON */}
               <div className="col-span-2">
                 <button
                   type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 cursor-pointer rounded-md font-semibold w-full"
+                  disabled={loading}
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 cursor-pointer rounded-md font-semibold w-full disabled:opacity-60"
                 >
-                  Create Account
+                  {loading ? "Creating..." : "Create Account"}
                 </button>
               </div>
             </form>
 
-            {/* LOGIN LINK */}
             <div className="text-center text-sm mt-2">
               <span>Already have an account? </span>
               <Link

@@ -4,6 +4,7 @@ import { MdKeyboardArrowRight } from "react-icons/md";
 import { FiHeart } from "react-icons/fi";
 import { WishlistContext } from "../../Context/Wishlist";
 import { Auth } from "../../Context/Auth";
+import API_URL from "../../Constent";
 
 const Products = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const Products = () => {
   const getProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/products/");
+      const res = await fetch(`${API_URL}/products/`);
       const data = await res.json();
       setProducts(data);
       const genders = [...new Set(data.map((item) => item.gender))];
@@ -50,7 +51,7 @@ const Products = () => {
 
   const getBrands = async () => {
     try {
-      const res = await fetch("http://localhost:5000/brands/");
+      const res = await fetch(`${API_URL}/brands/`);
       const data = await res.json();
       setBrands(data);
     } catch (err) {
@@ -198,7 +199,7 @@ const Products = () => {
             >
               {/* Image */}
               <img
-                src={`http://localhost:5000/product/${item.image[0]}`}
+                src={`${API_URL}/product/${item.image[0]}`}
                 alt={item.title}
                 className="w-full h-[58vh] object-cover object-top transition duration-500 group-hover:scale-105"
               />

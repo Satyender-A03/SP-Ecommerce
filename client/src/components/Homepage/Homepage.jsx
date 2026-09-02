@@ -10,6 +10,7 @@ import { FiHeart } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { WishlistContext } from "../../Context/Wishlist";
 import { Auth } from "../../Context/Auth";
+import API_URL from "../../Constent";
 
 const featuredCards = [
   { title: "Signature Leather Handbag", tag: "Featured", image: image },
@@ -33,7 +34,7 @@ const Homepage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/products");
+      const response = await fetch(`${API_URL}/products`);
       const responseData = await response.json();
       setProductList(responseData);
     } catch (error) {
@@ -43,7 +44,7 @@ const Homepage = () => {
 
   const fetchBrands = async () => {
     try {
-      const response = await fetch("http://localhost:5000/brands");
+      const response = await fetch(`${API_URL}/brands`);
       const responseData = await response.json();
       setBrandList(responseData);
     } catch (error) {
@@ -134,13 +135,13 @@ const Homepage = () => {
             >
               <button
                 onClick={() => navigate("/products?gender=Men")}
-                className="bg-white text-[#1a2a33] px-10 py-3 text-sm font-bold tracking-widest uppercase rounded-full hover:bg-[#1a2a33] hover:text-white transition duration-300"
+                className="bg-white text-[#1a2a33] px-10 py-3 cursor-pointer text-sm font-bold tracking-widest uppercase rounded-full hover:bg-[#1a2a33] hover:text-white transition duration-300"
               >
                 Men
               </button>
               <button
                 onClick={() => navigate("/products?gender=Women")}
-                className="bg-white text-[#1a2a33] px-10 py-3 text-sm font-bold tracking-widest uppercase rounded-full hover:bg-[#1a2a33] hover:text-white transition duration-300"
+                className="bg-white text-[#1a2a33] px-10 py-3 cursor-pointer text-sm font-bold tracking-widest uppercase rounded-full hover:bg-[#1a2a33] hover:text-white transition duration-300"
               >
                 Women
               </button>
@@ -213,7 +214,7 @@ const Homepage = () => {
               style={{ animationDelay: `${0.08 * productIndex}s` }}
             >
               <img
-                src={`http://localhost:5000/product/${product.image[0]}`}
+                src={`${API_URL}/product/${product.image[0]}`}
                 alt={product.title}
                 className="w-full h-[58vh] object-cover object-top transition duration-500 group-hover:scale-105"
               />
@@ -260,46 +261,37 @@ const Homepage = () => {
 
       {/* ── BRANDS ── */}
       <div className="w-full px-10 py-12 bg-gray-200">
-        <div className="reveal flex items-center justify-between mb-8">
+        <div className="reveal flex items-center justify-between mb-8 gap-2">
           <div>
             <p className="text-xs tracking-widest text-gray-500 uppercase mb-1">
               Partners
             </p>
             <h2 className="text-3xl font-black text-black">Our Brands</h2>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => scrollBrands("prev")}
-              className="w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-xl text-gray-700 hover:bg-black hover:text-white hover:border-black transition duration-300"
-            >
-              <MdKeyboardArrowLeft />
-            </button>
-            <button
-              onClick={() => scrollBrands("next")}
-              className="w-10 h-10 rounded-full bg-white border border-gray-300 flex items-center justify-center text-xl text-gray-700 hover:bg-black hover:text-white hover:border-black transition duration-300"
-            >
-              <MdKeyboardArrowRight />
-            </button>
+          <div
+            ref={brandScrollRef}
+            className="flex gap-5 overflow-x-auto"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {brandList.map((brand, brandIndex) => (
+              <div
+                key={brandIndex}
+                onClick={() =>
+                  navigate(
+                    `/searchproduct?q=${encodeURIComponent(brand.title)}`,
+                  )
+                }
+                className="reveal min-w-[160px] h-24 bg-white rounded-2xl flex items-center justify-center border border-gray-200 hover:border-gray-400 hover:shadow-md transition duration-300 shrink-0 cursor-pointer"
+                style={{ animationDelay: `${0.08 * brandIndex}s` }}
+              >
+                <img
+                  src={`${API_URL}/brand/${brand.image[0]}`}
+                  alt={brand.title}
+                  className="max-h-14 max-w-[120px] object-contain"
+                />
+              </div>
+            ))}
           </div>
-        </div>
-        <div
-          ref={brandScrollRef}
-          className="flex gap-5 overflow-x-auto"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {brandList.map((brand, brandIndex) => (
-            <div
-              key={brandIndex}
-              className="reveal min-w-[160px] h-24 bg-white rounded-2xl flex items-center justify-center border border-gray-200 hover:border-gray-400 transition duration-300 shrink-0"
-              style={{ animationDelay: `${0.08 * brandIndex}s` }}
-            >
-              <img
-                src={`http://localhost:5000/brand/${brand.image[0]}`}
-                alt={brand.title}
-                className="max-h-14 max-w-[120px] object-contain"
-              />
-            </div>
-          ))}
         </div>
       </div>
     </section>

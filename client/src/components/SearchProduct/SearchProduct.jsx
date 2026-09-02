@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { SearchContext } from "../../Context/Search";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import API_URL from "../../Constent";
 
 const SearchProducts = () => {
   const { search, setSearch, searchResults, setSearchResults } =
@@ -24,15 +25,42 @@ const SearchProducts = () => {
 
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/products/");
+        const res = await fetch(`${API_URL}/products/`);
         const data = await res.json();
 
-        const query = activeQuery.toLowerCase();
+        // Strip spaces/hyphens/underscores so "tshirt" matches "t-shirt",
+        // and "t shirt" matches "T-Shirt" etc.
+        const normalize = (str) =>
+          (str || "").toLowerCase().replace(/[\s\-_]/g, "");
+
+        const query = activeQuery.toLowerCase().trim();
+        const normalizedQuery = normalize(activeQuery);
+        const queryWords = query.split(/\s+/).filter(Boolean);
 
         const filtered = data.filter((item) => {
-          const title = item.title?.toLowerCase() || "";
-          const name = item.name?.toLowerCase() || "";
-          return title.includes(query) || name.includes(query);
+          const fields = [
+            item.title,
+            item.brand?.title,
+            item.category,
+            item.desc,
+            item.color,
+          ];
+
+          return fields.some((field) => {
+            if (!field) return false;
+            const fieldLower = field.toLowerCase();
+            const fieldNormalized = normalize(field);
+
+            // Direct substring match (covers "shirt" → "t-shirt")
+            if (fieldLower.includes(query)) return true;
+
+            // Normalized match, ignoring spaces/hyphens (covers "tshirt" → "t-shirt")
+            if (fieldNormalized.includes(normalizedQuery)) return true;
+
+            // Any individual word of the query appears in the field
+            // (covers multi-word queries like "black shirt")
+            return queryWords.some((word) => fieldLower.includes(word));
+          });
         });
 
         setSearchResults(filtered);
@@ -79,7 +107,7 @@ const SearchProducts = () => {
               {/* Image */}
               <div className="h-[50vh] overflow-hidden">
                 <img
-                  src={`http://localhost:5000/product/${item.image?.[0]}`}
+                  src={`${API_URL}/product/${item.image?.[0]}`}
                   alt={item.title}
                   className="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105"
                 />

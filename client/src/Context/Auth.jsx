@@ -7,10 +7,13 @@ export const AuthProvider = ({ children }) => {
     !!localStorage.getItem("accessToken"),
   );
 
-  // 🔥 user info bhi store karo
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem("user");
+      return saved && saved !== "undefined" ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
   const login = (token, userData) => {
@@ -29,8 +32,9 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
   };
 
+  // ── setUser bhi export karo taaki profile update ho sake ─────────────────
   return (
-    <Auth.Provider value={{ isLoggedIn, user, login, logout }}>
+    <Auth.Provider value={{ isLoggedIn, user, setUser, login, logout }}>
       {children}
     </Auth.Provider>
   );
