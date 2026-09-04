@@ -8,9 +8,8 @@ import {
 } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar/Sidebar";
-import ScrollToTop from "./components/ScrolltoTop/ScrolltoTop";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import { AdminAuthProvider } from "./Context/AdminAuth"; // required — Signin.jsx uses this context
-
 import AdminPanel from "./components/AdminPanel/AdminPanel";
 import ProductManage from "./components/Management/ProductManage";
 import BrandManage from "./components/Management/BrandManage";
@@ -25,7 +24,6 @@ import BrandForm from "./components/Forms/BrandForm";
 import Analytics from "./components/Analytics/Analytics";
 import AdminSignin from "./components/Signin/Signin";
 import CreateSignin from "./components/Signin/CreateSignin";
-
 import "./index.css";
 
 const AppContent = () => {
