@@ -35,7 +35,7 @@ const ProductForm = () => {
   useEffect(() => {
     const getBrands = async () => {
       try {
-        const res = await fetch("http://localhost:5000/brands");
+        const res = await fetch(`${API_URL}/brands`);
         const data = await res.json();
         setBrands(data);
       } catch (err) {
@@ -113,7 +113,7 @@ const ProductForm = () => {
         console.log(pair[0], pair[1]);
       }
 
-      const res = await fetch("http://localhost:5000/products/upload", {
+      const res = await fetch(`${API_URL}/products/upload`, {
         method: "POST",
         body: formData,
       });
